@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:tns="http://cityorbit.fiap.com.br/soap"
+           targetNamespace="http://cityorbit.fiap.com.br/soap"
+           elementFormDefault="qualified">
+
+    <xs:element name="getSimulationReportRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="simulationId" type="xs:long"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="getSimulationReportResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="report" type="tns:SimulationReport"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="processSimulationRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="cityId"          type="xs:long"/>
+                <xs:element name="simulationType"  type="xs:string"/>
+                <xs:element name="parameters"      type="xs:string"  minOccurs="0"/>
+                <xs:element name="fetchNasaData"   type="xs:boolean" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="processSimulationResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="simulationId" type="xs:long"/>
+                <xs:element name="status"       type="xs:string"/>
+                <xs:element name="message"      type="xs:string"/>
+                <xs:element name="riskScore"    type="xs:double"  minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="SimulationReport">
+        <xs:sequence>
+            <xs:element name="id"                          type="xs:long"/>
+            <xs:element name="cityName"                    type="xs:string"/>
+            <xs:element name="cityState"                   type="xs:string"/>
+            <xs:element name="simulationType"              type="xs:string"/>
+            <xs:element name="simulationTypeDescription"   type="xs:string"/>
+            <xs:element name="status"                      type="xs:string"/>
+            <xs:element name="riskScore"                   type="xs:double"  minOccurs="0"/>
+            <xs:element name="results"                     type="xs:string"  minOccurs="0"/>
+            <xs:element name="nasaDataReference"           type="xs:string"  minOccurs="0"/>
+            <xs:element name="createdAt"                   type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

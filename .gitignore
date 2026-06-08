@@ -1,0 +1,21 @@
+# Maven
+target/
+.mvn/wrapper/maven-wrapper.jar
+*.class
+
+# Node
+node_modules/
+package-lock.json
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Logs de erro da JVM
+hs_err_pid*.log
+replay_pid*.log
+
+# OS
+.DS_Store
+Thumbs.db

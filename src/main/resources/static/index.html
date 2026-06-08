@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CityOrbit — Digital Twin Urbano</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<div class="app-shell">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon"><i class="fas fa-satellite"></i></div>
+      <div class="logo-text">
+        <span class="logo-city">City</span><span class="logo-orbit">Orbit</span>
+        <small>Digital Twin Urbano</small>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item active" data-section="dashboard" href="#">
+        <i class="fas fa-chart-line"></i><span>Dashboard</span>
+      </a>
+      <a class="nav-item" data-section="cities" href="#">
+        <i class="fas fa-city"></i><span>Cidades</span>
+      </a>
+      <a class="nav-item" data-section="simulations" href="#">
+        <i class="fas fa-flask"></i><span>Simulações</span>
+      </a>
+      <a class="nav-item" data-section="mapview" href="#">
+        <i class="fas fa-map-marked-alt"></i><span>Mapa</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="status-dot online"></div>
+      <span>API conectada</span>
+    </div>
+  </aside>
+
+  <div class="main-area">
+
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-actions">
+        <div class="nasa-badge"><i class="fas fa-satellite-dish"></i> NASA POWER API</div>
+        <div id="authStatus" class="auth-status" onclick="Auth.toggleModal()"></div>
+        <div class="topbar-time" id="topbarTime"></div>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <section id="section-dashboard" class="section active">
+        <div class="section-header">
+          <h2>Visão Geral</h2>
+          <button class="btn btn-primary" onclick="App.refreshAll()">
+            <i class="fas fa-sync-alt"></i> Atualizar
+          </button>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon blue"><i class="fas fa-city"></i></div>
+            <div class="stat-info">
+              <span class="stat-value" id="statCities">—</span>
+              <span class="stat-label">Cidades Monitoradas</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple"><i class="fas fa-flask"></i></div>
+            <div class="stat-info">
+              <span class="stat-value" id="statSims">—</span>
+              <span class="stat-label">Simulações Totais</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-info">
+              <span class="stat-value" id="statCompleted">—</span>
+              <span class="stat-label">Completadas</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange"><i class="fas fa-exclamation-triangle"></i></div>
+            <div class="stat-info">
+              <span class="stat-value" id="statAvgRisk">—</span>
+              <span class="stat-label">Risco Médio</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-city"></i> Cidades Cadastradas</h3>
+              <button class="btn btn-sm btn-primary" onclick="App.showSection('cities')">Ver todas</button>
+            </div>
+            <div class="card-body" id="dashCitiesList">
+              <div class="loading"><i class="fas fa-spinner fa-spin"></i></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-flask"></i> Simulações Recentes</h3>
+              <button class="btn btn-sm btn-primary" onclick="App.showSection('simulations')">Ver todas</button>
+            </div>
+            <div class="card-body" id="dashSimsList">
+              <div class="loading"><i class="fas fa-spinner fa-spin"></i></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="section-cities" class="section">
+        <div class="section-header">
+          <h2>Cidades Monitoradas</h2>
+          <button class="btn btn-primary" onclick="Cities.openModal()">
+            <i class="fas fa-plus"></i> Nova Cidade
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="card-toolbar">
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input type="text" id="citySearch" placeholder="Buscar cidade..." oninput="Cities.filter(this.value)" />
+            </div>
+            <select id="cityStateFilter" onchange="Cities.filterByState(this.value)">
+              <option value="">Todos os estados</option>
+            </select>
+          </div>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Cidade</th>
+                  <th>Estado</th>
+                  <th>País</th>
+                  <th>LiDAR</th>
+                  <th>Satélite</th>
+                  <th>Simulações</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="citiesTableBody">
+                <tr><td colspan="8" class="loading"><i class="fas fa-spinner fa-spin"></i></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="section-simulations" class="section">
+        <div class="section-header">
+          <h2>Simulações Urbanas</h2>
+          <button class="btn btn-primary" onclick="Simulations.openModal()">
+            <i class="fas fa-plus"></i> Nova Simulação
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="card-toolbar">
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input type="text" id="simSearch" placeholder="Buscar por cidade..." oninput="Simulations.filter(this.value)" />
+            </div>
+            <select id="simTypeFilter" onchange="Simulations.filterByType(this.value)">
+              <option value="">Todos os tipos</option>
+              <option value="FLOOD">Enchente</option>
+              <option value="TRAFFIC">Tráfego</option>
+              <option value="CONSTRUCTION">Obra</option>
+              <option value="HEAT_ISLAND">Ilha de Calor</option>
+            </select>
+            <select id="simStatusFilter" onchange="Simulations.filterByStatus(this.value)">
+              <option value="">Todos os status</option>
+              <option value="PENDING">Pendente</option>
+              <option value="PROCESSING">Processando</option>
+              <option value="COMPLETED">Completo</option>
+              <option value="FAILED">Falhou</option>
+            </select>
+          </div>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Cidade</th>
+                  <th>Tipo</th>
+                  <th>Status</th>
+                  <th>Risco</th>
+                  <th>NASA Data</th>
+                  <th>Criado em</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="simsTableBody">
+                <tr><td colspan="8" class="loading"><i class="fas fa-spinner fa-spin"></i></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="section-mapview" class="section section-map">
+        <div class="mapview-topbar">
+          <h2><i class="fas fa-map-marked-alt"></i> Mapa de Simulações</h2>
+          <div class="mapview-controls">
+            <select id="mapviewTypeFilter" onchange="MainMap.filter()">
+              <option value="">Todos os tipos</option>
+              <option value="FLOOD">Enchente</option>
+              <option value="TRAFFIC">Tráfego</option>
+              <option value="CONSTRUCTION">Obra</option>
+              <option value="HEAT_ISLAND">Ilha de Calor</option>
+            </select>
+            <select id="mapviewStatusFilter" onchange="MainMap.filter()">
+              <option value="">Todos os status</option>
+              <option value="COMPLETED">Completo</option>
+              <option value="PENDING">Pendente</option>
+              <option value="FAILED">Falhou</option>
+            </select>
+            <button class="btn btn-sm btn-ghost" onclick="MainMap.fitAll()">
+              <i class="fas fa-expand-arrows-alt"></i> Ver tudo
+            </button>
+            <button class="btn btn-sm btn-primary" onclick="Simulations.openModal(); App.showSection('simulations')">
+              <i class="fas fa-plus"></i> Nova simulação
+            </button>
+          </div>
+        </div>
+        <div class="mapview-layout">
+          <div id="mainMapEl"></div>
+          <div class="mapview-panel">
+            <div class="mapview-panel-header">
+              <span id="mapviewCount">— simulações</span>
+            </div>
+            <div id="mapviewList" class="mapview-list"></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+
+<div class="modal-overlay" id="cityModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="cityModalTitle"><i class="fas fa-city"></i> Nova Cidade</h3>
+      <button class="modal-close" onclick="Cities.closeModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="cityId" />
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nome <span class="required">*</span></label>
+          <input type="text" id="cityName" placeholder="Ex: São Paulo" />
+        </div>
+        <div class="form-group">
+          <label>Estado <span class="required">*</span></label>
+          <input type="text" id="cityState" placeholder="Ex: SP" maxlength="2" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>País <span class="required">*</span></label>
+          <input type="text" id="cityCountry" value="Brasil" placeholder="Ex: Brasil" />
+        </div>
+        <div class="form-group">
+          <label>Resolução Satélite</label>
+          <select id="citySatRes">
+            <option value="">Selecione</option>
+            <option value="0.5m">0.5m (Alta)</option>
+            <option value="1m">1m (Média)</option>
+            <option value="2m">2m (Padrão)</option>
+          </select>
+        </div>
+      </div>
+
+      <input type="hidden" id="cityLat" />
+      <input type="hidden" id="cityLng" />
+      <label class="checkbox-label">
+        <input type="checkbox" id="cityLidar" /> <span>LiDAR disponível</span>
+      </label>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="Cities.closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="Cities.save()">
+        <i class="fas fa-save"></i> Salvar
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="simModal">
+  <div class="modal modal-map">
+    <div class="modal-header">
+      <h3 id="simModalTitle"><i class="fas fa-flask"></i> Nova Simulação</h3>
+      <button class="modal-close" onclick="Simulations.closeModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="simId" />
+      <div class="form-group">
+        <label>Cidade <span class="required">*</span></label>
+        <select id="simCityId"></select>
+      </div>
+      <div class="form-group">
+        <label>Tipo de Simulação <span class="required">*</span></label>
+        <div class="sim-type-grid">
+          <label class="type-card" data-type="FLOOD">
+            <input type="radio" name="simType" value="FLOOD" />
+            <i class="fas fa-water"></i><span>Enchente</span>
+          </label>
+          <label class="type-card" data-type="TRAFFIC">
+            <input type="radio" name="simType" value="TRAFFIC" />
+            <i class="fas fa-car"></i><span>Tráfego</span>
+          </label>
+          <label class="type-card" data-type="CONSTRUCTION">
+            <input type="radio" name="simType" value="CONSTRUCTION" />
+            <i class="fas fa-hard-hat"></i><span>Obra</span>
+          </label>
+          <label class="type-card" data-type="HEAT_ISLAND">
+            <input type="radio" name="simType" value="HEAT_ISLAND" />
+            <i class="fas fa-temperature-high"></i><span>Ilha de Calor</span>
+          </label>
+        </div>
+      </div>
+
+      <div id="simParamsFields" class="params-panel" style="display:none"></div>
+
+      <div id="simPickerSection" style="display:none">
+        <div class="picker-steps">
+          <div class="picker-step" id="pickerStepA">
+            <div class="step-circle step-a">A</div>
+            <span id="stepLabelA">Clique no mapa para marcar o ponto inicial</span>
+          </div>
+          <i class="fas fa-arrow-right picker-arrow"></i>
+          <div class="picker-step" id="pickerStepB">
+            <div class="step-circle step-b">B</div>
+            <span id="stepLabelB">Depois clique para marcar o ponto final</span>
+          </div>
+          <button class="btn btn-sm btn-ghost" onclick="MapPicker.reset()" style="margin-left:auto">
+            <i class="fas fa-undo"></i> Resetar
+          </button>
+        </div>
+        <div id="simPickerMapEl"></div>
+        <div class="picker-coords">
+          <span id="pickerCoordA"><i class="fas fa-map-marker-alt" style="color:var(--cyan)"></i> A: clique no mapa</span>
+          <span id="pickerCoordB"><i class="fas fa-flag" style="color:var(--text-2)"></i> B: clique no mapa</span>
+        </div>
+
+        <input type="hidden" id="p_lat_a" /><input type="hidden" id="p_lng_a" />
+        <input type="hidden" id="p_lat_b" /><input type="hidden" id="p_lng_b" />
+        <input type="hidden" id="p_lat_c" /><input type="hidden" id="p_lng_c" />
+      </div>
+
+      <label class="checkbox-label nasa-label">
+        <input type="checkbox" id="simNasa" />
+        <div class="nasa-label-content">
+          <span class="nasa-label-title"><i class="fas fa-satellite-dish"></i> Enriquecer com dados reais da NASA</span>
+          <span class="nasa-label-desc">Consulta temperatura, chuva e vento dos últimos 30 dias via NASA POWER API e calcula o score de risco automaticamente</span>
+        </div>
+      </label>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="Simulations.closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="Simulations.save()">
+        <i class="fas fa-save"></i> Salvar
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="simDetailModal">
+  <div class="modal modal-xl">
+    <div class="modal-header">
+      <h3><i class="fas fa-satellite"></i> Detalhes da Simulação</h3>
+      <button class="modal-close" onclick="Simulations.closeDetailModal()"><i class="fas fa-times"></i></button>
+    </div>
+
+    <!-- Abas -->
+    <div class="detail-tabs">
+      <button class="detail-tab active" id="tabBtnData" onclick="Simulations.switchTab('data')">
+        <i class="fas fa-table"></i> Dados
+      </button>
+      <button class="detail-tab" id="tabBtnMap" onclick="Simulations.switchTab('map')">
+        <i class="fas fa-satellite-dish"></i> Mapa de Impacto
+      </button>
+    </div>
+
+
+    <div class="modal-body" id="tabPanelData"></div>
+
+
+    <div id="tabPanelMap" style="display:none">
+      <div id="simMapLegend" class="map-legend"></div>
+      <div id="simMap"></div>
+      <div class="map-hint">
+        <i class="fas fa-info-circle"></i>
+        Imagem de satélite real via <strong>ESRI World Imagery</strong>.
+        A zona colorida representa a área de impacto simulada com base nos parâmetros informados.
+        Use scroll para zoom e arraste para navegar.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal-overlay" id="loginModal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <h3><i class="fas fa-lock"></i> Acesso Seguro</h3>
+      <button class="modal-close" onclick="Auth.closeModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" style="gap:14px">
+      <p style="font-size:12px;color:var(--text-2)">
+        <i class="fas fa-info-circle"></i>
+        Operações de escrita (criar, editar, deletar) requerem autenticação.
+        Leitura é pública.
+      </p>
+      <div class="form-group">
+        <label>Usuário</label>
+        <input type="text" id="loginUsername" placeholder="admin" />
+      </div>
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" id="loginPassword" placeholder="••••••••"
+               onkeydown="if(event.key==='Enter') Auth.login()" />
+      </div>
+      <div id="loginError" style="display:none;font-size:12px;color:var(--red);padding:6px 10px;background:rgba(239,68,68,.1);border-radius:6px;border:1px solid rgba(239,68,68,.2)"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="Auth.closeModal()">Cancelar</button>
+      <button class="btn btn-primary" id="loginBtn" onclick="Auth.login()">
+        <i class="fas fa-sign-in-alt"></i> Entrar
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CityOrbit — Gêmeos Digitais Urbanos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    :root {
+      --bg:     #060b18;
+      --bg1:    #0d1525;
+      --bg2:    #111e35;
+      --card:   #0f1b30;
+      --border: #1e3050;
+      --cyan:   #00d4ff;
+      --purple: #7c3aed;
+      --green:  #10b981;
+      --orange: #f59e0b;
+      --red:    #ef4444;
+      --t0:     #f0f6ff;
+      --t1:     #b8cce4;
+      --t2:     #6b8db5;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--t0); overflow-x: hidden; }
+
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 40px;
+      background: rgba(6,11,24,.85); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo-icon {
+      width: 36px; height: 36px; border-radius: 9px;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      display: grid; place-items: center; font-size: 16px;
+    }
+    .nav-logo-text { font-family: 'Orbitron', monospace; font-size: 18px; font-weight: 900; }
+    .nav-logo-text span { color: var(--cyan); }
+    .nav-cta {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 9px 22px; border-radius: 8px;
+      background: linear-gradient(135deg, #0097b8, var(--cyan));
+      color: #000; font-weight: 700; font-size: 14px;
+      text-decoration: none; transition: all .2s;
+    }
+    .nav-cta:hover { filter: brightness(1.12); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,212,255,.3); }
+
+    /* ── HERO ─────────────────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 120px 24px 80px;
+      position: relative; overflow: hidden;
+    }
+    /* Grade de satélite animada */
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,212,255,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridMove 20s linear infinite;
+    }
+    @keyframes gridMove { to { background-position: 60px 60px; } }
+
+    /* Estrelas */
+    .hero::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        radial-gradient(1.5px 1.5px at 12% 18%, rgba(255,255,255,.5) 0%, transparent 100%),
+        radial-gradient(1px 1px   at 35% 62%, rgba(255,255,255,.3) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 58% 8%,  rgba(255,255,255,.4) 0%, transparent 100%),
+        radial-gradient(1px 1px   at 75% 75%, rgba(255,255,255,.3) 0%, transparent 100%),
+        radial-gradient(2px 2px   at 88% 28%, rgba(0,212,255,.4) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 22% 85%, rgba(124,58,237,.4) 0%, transparent 100%);
+      pointer-events: none;
+    }
+
+    .hero-orbit {
+      position: absolute; width: 500px; height: 500px;
+      border: 1px solid rgba(0,212,255,.12); border-radius: 50%;
+      animation: orbit 30s linear infinite;
+      top: 50%; left: 50%; transform: translate(-50%,-50%);
+    }
+    .hero-orbit::before {
+      content: '🛰️';
+      position: absolute; top: -12px; left: 50%;
+      font-size: 24px; animation: counter-orbit 30s linear infinite;
+    }
+    .hero-orbit-2 {
+      width: 750px; height: 750px;
+      border-color: rgba(124,58,237,.08);
+      animation-duration: 50s;
+      animation-direction: reverse;
+    }
+    @keyframes orbit { to { transform: translate(-50%,-50%) rotate(360deg); } }
+    @keyframes counter-orbit { to { transform: translateX(-50%) rotate(-360deg); } }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px; border-radius: 20px;
+      border: 1px solid rgba(0,212,255,.3); background: rgba(0,212,255,.07);
+      font-size: 12px; color: var(--cyan); letter-spacing: .5px;
+      margin-bottom: 28px; position: relative; z-index: 1;
+    }
+    .hero-badge i { animation: blink 2s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    .hero h1 {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(2rem, 5vw, 4rem); font-weight: 900;
+      line-height: 1.15; margin-bottom: 24px;
+      position: relative; z-index: 1;
+    }
+    .hero h1 .glow {
+      color: var(--cyan);
+      text-shadow: 0 0 40px rgba(0,212,255,.5), 0 0 80px rgba(0,212,255,.2);
+    }
+    .hero p {
+      font-size: clamp(1rem, 2vw, 1.2rem); color: var(--t1);
+      max-width: 640px; line-height: 1.8;
+      margin-bottom: 40px; position: relative; z-index: 1;
+    }
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; position: relative; z-index: 1; }
+    .btn-hero-primary {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 14px 32px; border-radius: 10px;
+      background: linear-gradient(135deg, #0097b8, var(--cyan));
+      color: #000; font-weight: 700; font-size: 16px;
+      text-decoration: none; transition: all .2s;
+      box-shadow: 0 0 30px rgba(0,212,255,.25);
+    }
+    .btn-hero-primary:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,212,255,.4); }
+    .btn-hero-ghost {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 14px 32px; border-radius: 10px;
+      border: 1px solid var(--border); color: var(--t1);
+      font-size: 16px; text-decoration: none; transition: all .2s;
+    }
+    .btn-hero-ghost:hover { border-color: var(--t1); color: var(--t0); }
+
+    .hero-stats {
+      display: flex; gap: 40px; margin-top: 64px; position: relative; z-index: 1;
+      flex-wrap: wrap; justify-content: center;
+    }
+    .hero-stat { text-align: center; }
+    .hero-stat-num {
+      font-family: 'Orbitron', monospace; font-size: 2rem; font-weight: 900;
+      color: var(--cyan); display: block;
+    }
+    .hero-stat-label { font-size: 12px; color: var(--t2); margin-top: 4px; }
+
+    /* ── SEÇÕES GENÉRICAS ─────────────────────────────────── */
+    section { padding: 100px 24px; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .section-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 14px; border-radius: 20px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+    .badge-cyan   { background: rgba(0,212,255,.1); color: var(--cyan); border: 1px solid rgba(0,212,255,.2); }
+    .badge-purple { background: rgba(124,58,237,.1); color: #a78bfa; border: 1px solid rgba(124,58,237,.2); }
+    .badge-green  { background: rgba(16,185,129,.1); color: #34d399; border: 1px solid rgba(16,185,129,.2); }
+    .section-title {
+      font-family: 'Orbitron', monospace; font-size: clamp(1.5rem, 3vw, 2.2rem);
+      font-weight: 700; margin-bottom: 16px;
+    }
+    .section-sub { font-size: 1.05rem; color: var(--t1); max-width: 560px; line-height: 1.8; }
+
+    /* ── PROBLEMA ─────────────────────────────────────────── */
+    .problem { background: var(--bg1); }
+    .problem-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 48px;
+    }
+    .problem-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+      padding: 28px; display: flex; gap: 18px; align-items: flex-start;
+      transition: all .2s;
+    }
+    .problem-card:hover { border-color: rgba(0,212,255,.25); transform: translateY(-3px); box-shadow: 0 8px 32px rgba(0,0,0,.4); }
+    .problem-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: grid; place-items: center; font-size: 20px; flex-shrink: 0;
+    }
+    .problem-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .problem-card p  { font-size: 13px; color: var(--t2); line-height: 1.7; }
+
+    /* ── SOLUÇÃO / SIMULAÇÕES ─────────────────────────────── */
+    .sims-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 48px;
+    }
+    .sim-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+      padding: 32px; position: relative; overflow: hidden; transition: all .25s;
+    }
+    .sim-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, var(--accent-color, var(--cyan)), transparent 60%);
+      opacity: 0; transition: opacity .3s;
+    }
+    .sim-card:hover { border-color: var(--accent-color, var(--cyan)); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,.5); }
+    .sim-card:hover::before { opacity: .05; }
+    .sim-card-icon {
+      width: 56px; height: 56px; border-radius: 14px;
+      background: rgba(255,255,255,.05); border: 1px solid var(--border);
+      display: grid; place-items: center; font-size: 24px; margin-bottom: 20px;
+      position: relative; z-index: 1;
+    }
+    .sim-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; position: relative; z-index: 1; }
+    .sim-card p  { font-size: 14px; color: var(--t2); line-height: 1.7; margin-bottom: 16px; position: relative; z-index: 1; }
+    .sim-tags { display: flex; gap: 8px; flex-wrap: wrap; position: relative; z-index: 1; }
+    .sim-tag {
+      font-size: 11px; padding: 3px 10px; border-radius: 20px;
+      background: rgba(255,255,255,.06); border: 1px solid var(--border); color: var(--t2);
+    }
+
+    /* ── COMO FUNCIONA ────────────────────────────────────── */
+    .how { background: var(--bg1); }
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-top: 48px; position: relative; }
+    .steps::before {
+      content: ''; position: absolute; top: 30px; left: 12.5%; right: 12.5%; height: 2px;
+      background: linear-gradient(90deg, var(--cyan), var(--purple), var(--green));
+    }
+    .step {
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+      padding: 0 16px;
+    }
+    .step-num {
+      width: 60px; height: 60px; border-radius: 50%;
+      background: var(--card); border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Orbitron', monospace; font-size: 22px; font-weight: 900;
+      color: var(--cyan); position: relative; z-index: 1; margin-bottom: 20px;
+      box-shadow: 0 0 20px rgba(0,212,255,.2);
+    }
+    .step h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+    .step p  { font-size: 13px; color: var(--t2); line-height: 1.7; }
+
+    /* ── NASA HIGHLIGHT ──────────────────────────────────── */
+    .nasa-section {
+      background: linear-gradient(135deg, rgba(0,212,255,.04), rgba(124,58,237,.06));
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    }
+    .nasa-inner {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+    }
+    .nasa-tag { font-size: 11px; color: var(--cyan); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .nasa-inner h2 { font-family: 'Orbitron', monospace; font-size: 1.8rem; font-weight: 900; margin-bottom: 16px; }
+    .nasa-inner p  { color: var(--t1); line-height: 1.8; margin-bottom: 24px; }
+    .nasa-features { display: flex; flex-direction: column; gap: 14px; }
+    .nasa-feat { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--t1); }
+    .nasa-feat i { color: var(--cyan); width: 18px; }
+    .nasa-visual {
+      background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+      padding: 32px; display: flex; flex-direction: column; gap: 16px;
+    }
+    .nasa-data-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 0; border-bottom: 1px solid rgba(30,48,80,.5);
+    }
+    .nasa-data-row:last-child { border-bottom: none; }
+    .nasa-data-label { font-size: 12px; color: var(--t2); }
+    .nasa-data-val { font-family: 'Orbitron', monospace; font-size: 16px; color: var(--cyan); font-weight: 700; }
+    .nasa-label { font-size: 11px; font-weight: 700; color: var(--cyan); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+
+    /* ── TECH STACK ──────────────────────────────────────── */
+    .tech-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 48px;
+    }
+    .tech-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 22px; display: flex; gap: 14px; align-items: center;
+      transition: all .2s;
+    }
+    .tech-card:hover { border-color: rgba(0,212,255,.2); background: rgba(15,27,48,.9); }
+    .tech-icon { font-size: 24px; width: 40px; text-align: center; flex-shrink: 0; }
+    .tech-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+    .tech-card p  { font-size: 12px; color: var(--t2); }
+
+    /* ── ODS ─────────────────────────────────────────────── */
+    .ods { background: var(--bg1); }
+    .ods-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 40px;
+    }
+    .ods-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 22px; text-align: center;
+    }
+    .ods-num {
+      font-family: 'Orbitron', monospace; font-size: 2.5rem; font-weight: 900;
+      color: var(--cyan); display: block;
+    }
+    .ods-card h4 { font-size: 14px; font-weight: 700; margin: 10px 0 6px; }
+    .ods-card p  { font-size: 12px; color: var(--t2); line-height: 1.6; }
+
+    /* ── CTA FINAL ───────────────────────────────────────── */
+    .cta-section {
+      text-align: center; padding: 120px 24px;
+      background: radial-gradient(ellipse at center, rgba(0,212,255,.06) 0%, transparent 70%);
+    }
+    .cta-section h2 { font-family: 'Orbitron', monospace; font-size: clamp(1.5rem, 3vw, 2.5rem); font-weight: 900; margin-bottom: 16px; }
+    .cta-section p  { color: var(--t1); font-size: 1.05rem; max-width: 500px; margin: 0 auto 40px; line-height: 1.8; }
+
+    /* ── FOOTER ──────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+      font-size: 13px; color: var(--t2);
+    }
+    footer a { color: var(--cyan); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* ── RESPONSIVE ──────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .problem-grid, .sims-grid, .nasa-inner, .tech-grid { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr 1fr; }
+      .steps::before { display: none; }
+      .ods-grid { grid-template-columns: 1fr 1fr; }
+      nav { padding: 14px 20px; }
+    }
+    @media (max-width: 600px) {
+      .steps, .ods-grid { grid-template-columns: 1fr; }
+      .hero-stats { gap: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/landing.html">
+    <div class="nav-logo-icon"><i class="fas fa-satellite"></i></div>
+    <div class="nav-logo-text">City<span>Orbit</span></div>
+  </a>
+  <a class="nav-cta" href="/index.html">
+    <i class="fas fa-rocket"></i> Acessar Plataforma
+  </a>
+</nav>
+
+<section class="hero">
+  <div class="hero-orbit"></div>
+  <div class="hero-orbit hero-orbit-2"></div>
+
+  <div class="hero-badge">
+    <i class="fas fa-satellite-dish"></i>
+    Integrado com NASA POWER API · Dados de Satélite em Tempo Real
+  </div>
+
+  <h1>
+    O gêmeo digital<br>
+    <span class="glow">da sua cidade</span><br>
+    com inteligência espacial
+  </h1>
+
+  <p>
+    CityOrbit usa <strong>imagens de satélite de alta resolução</strong>, <strong>LiDAR</strong> e
+    <strong>IA generativa</strong> para simular enchentes, congestionamentos, obras e ilhas de calor —
+    antes de qualquer decisão pública ser tomada.
+  </p>
+
+  <div class="hero-actions">
+    <a class="btn-hero-primary" href="/index.html">
+      <i class="fas fa-rocket"></i> Entrar na plataforma
+    </a>
+    <a class="btn-hero-ghost" href="#problema">
+      <i class="fas fa-play-circle"></i> Saiba como funciona
+    </a>
+  </div>
+
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <span class="hero-stat-num">4</span>
+      <div class="hero-stat-label">Tipos de simulação</div>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-num">30d</span>
+      <div class="hero-stat-label">Dados climáticos NASA</div>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-num">∞</span>
+      <div class="hero-stat-label">Cidades monitoráveis</div>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-num">100%</span>
+      <div class="hero-stat-label">API pública gratuita (NASA)</div>
+    </div>
+  </div>
+</section>
+
+<section class="problem" id="problema">
+  <div class="container">
+    <div class="section-badge badge-cyan"><i class="fas fa-exclamation-triangle"></i> O Problema</div>
+    <h2 class="section-title">Cidades tomam decisões às cegas</h2>
+    <p class="section-sub">
+      Gestores públicos aprovam obras, mudanças de tráfego e novos projetos sem
+      qualquer simulação prévia do impacto — e as consequências afetam milhões.
+    </p>
+
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-icon" style="background:rgba(59,130,246,.12);color:#60a5fa"><i class="fas fa-water"></i></div>
+        <div>
+          <h3>Enchentes não previstas</h3>
+          <p>Sem modelo de escoamento urbano, a chuva vira catástrofe. Bairros inteiros são evacuados por falta de planejamento hídrico baseado em dados reais de precipitação.</p>
+        </div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon" style="background:rgba(245,158,11,.12);color:#fbbf24"><i class="fas fa-car"></i></div>
+        <div>
+          <h3>Tráfego colapsado por obras</h3>
+          <p>Uma simples intervenção viária pode gerar horas de congestionamento. Sem simulação prévia, o impacto só é percebido quando já é tarde demais para agir.</p>
+        </div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon" style="background:rgba(239,68,68,.12);color:#f87171"><i class="fas fa-temperature-high"></i></div>
+        <div>
+          <h3>Ilhas de calor invisíveis</h3>
+          <p>O adensamento urbano cria zonas de calor extremo. Sem mapeamento térmico por satélite, populações vulneráveis ficam expostas sem que a gestão sequer saiba.</p>
+        </div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon" style="background:rgba(16,185,129,.12);color:#34d399"><i class="fas fa-hard-hat"></i></div>
+        <div>
+          <h3>Obras sem avaliação de impacto</h3>
+          <p>Projetos de infraestrutura são aprovados sem análise do raio de impacto real sobre mobilidade, comércio e qualidade de vida da vizinhança.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="solucao">
+  <div class="container">
+    <div class="section-badge badge-purple"><i class="fas fa-satellite"></i> A Solução</div>
+    <h2 class="section-title">Simule antes de decidir</h2>
+    <p class="section-sub">
+      Com o CityOrbit, gestores e engenheiros podem criar cenários digitais precisos,
+      visualizar o impacto no mapa de satélite e tomar decisões embasadas em dados reais.
+    </p>
+
+    <div class="sims-grid">
+      <div class="sim-card" style="--accent-color:#3b82f6">
+        <div class="sim-card-icon" style="color:#60a5fa"><i class="fas fa-water"></i></div>
+        <h3>🌊 Simulação de Enchente</h3>
+        <p>Defina o volume de chuva, a duração do evento e a área de risco. O sistema usa dados climáticos reais da NASA POWER API para calcular o score de risco e plotar a zona de alagamento no mapa de satélite.</p>
+        <div class="sim-tags">
+          <span class="sim-tag">Precipitação (mm)</span>
+          <span class="sim-tag">Duração (horas)</span>
+          <span class="sim-tag">Área de risco</span>
+          <span class="sim-tag">NASA POWER</span>
+        </div>
+      </div>
+
+      <div class="sim-card" style="--accent-color:#f59e0b">
+        <div class="sim-card-icon" style="color:#fbbf24"><i class="fas fa-car"></i></div>
+        <h3>🚗 Simulação de Tráfego</h3>
+        <p>Indique o horário de pico e o volume de veículos por hora. O corredor de impacto é desenhado na via escolhida com intensidade de cor proporcional — verde para trânsito leve, vermelho para colapso total.</p>
+        <div class="sim-tags">
+          <span class="sim-tag">Horário de pico</span>
+          <span class="sim-tag">Veículos/hora</span>
+          <span class="sim-tag">Velocidade média</span>
+        </div>
+      </div>
+
+      <div class="sim-card" style="--accent-color:#eab308">
+        <div class="sim-card-icon" style="color:#fbbf24"><i class="fas fa-hard-hat"></i></div>
+        <h3>🏗️ Simulação de Obra</h3>
+        <p>Escolha o tipo de obra, a área de impacto e a duração. O sistema calcula o raio de perturbação e gera o corredor de impacto com intensidade variável — uma obra de 24 meses tem impacto muito diferente de uma de 3 meses.</p>
+        <div class="sim-tags">
+          <span class="sim-tag">Tipo de obra</span>
+          <span class="sim-tag">Área afetada</span>
+          <span class="sim-tag">Duração (meses)</span>
+        </div>
+      </div>
+
+      <div class="sim-card" style="--accent-color:#ef4444">
+        <div class="sim-card-icon" style="color:#f87171"><i class="fas fa-temperature-high"></i></div>
+        <h3>🌡️ Ilha de Calor</h3>
+        <p>Marque 3 pontos no mapa para definir a zona térmica. Informe as temperaturas de manhã, tarde e noite. A tarde acima de 35°C acende o alerta vermelho — a cor do triângulo escala direto com a intensidade do calor.</p>
+        <div class="sim-tags">
+          <span class="sim-tag">3 pontos no mapa</span>
+          <span class="sim-tag">Temperatura manhã/tarde/noite</span>
+          <span class="sim-tag">NASA POWER</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="how" id="como-funciona">
+  <div class="container">
+    <div class="section-badge badge-green"><i class="fas fa-cogs"></i> Como Funciona</div>
+    <h2 class="section-title">De satélite à decisão em 4 passos</h2>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Seleciona a cidade</h3>
+        <p>Cadastre a cidade monitorada com suas coordenadas geográficas. O mapa carrega automaticamente centrado no local.</p>
+      </div>
+      <div class="step">
+        <div class="step-num" style="color:var(--purple)">2</div>
+        <h3>Marca a área</h3>
+        <p>Clique diretamente no mapa de satélite para definir os pontos A e B (ou A, B e C para ilhas de calor). Nada de digitar coordenadas.</p>
+      </div>
+      <div class="step">
+        <div class="step-num" style="color:var(--green)">3</div>
+        <h3>Define os parâmetros</h3>
+        <p>Ajuste os sliders de volume, duração, temperatura. O corredor de impacto atualiza em tempo real conforme você move cada slider.</p>
+      </div>
+      <div class="step">
+        <div class="step-num" style="color:var(--orange)">4</div>
+        <h3>Analisa o resultado</h3>
+        <p>O sistema busca dados climáticos reais da NASA POWER API e calcula o score de risco — de verde (baixo) a vermelho (crítico).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div>
+    <strong>CityOrbit</strong> — FIAP Global Solution 2026
+    <span style="margin: 0 8px">·</span>
+    Disciplina de Arquitetura Orientada a Serviços (SOA)
+  </div>
+</footer>
+
+</body>
+</html>
